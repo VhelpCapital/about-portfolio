@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why We Backed Aquapulse — Vhelp Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-dark: #0B2B3D;
+    --teal-mid: #0D4A6B;
+    --teal: #0E7490;
+    --cyan: #22D3EE;
+    --cyan-light: #67E8F9;
+    --pink: #EC4899;
+    --pink-hot: #F472B6;
+    --cream: #F0F9FF;
+    --white: #FFFFFF;
+    --border: #164E63;
+    --text: #0F172A;
+    --text-light: #334155;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--teal-dark); color:var(--white); line-height:1.7; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+  @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  @keyframes wavePulse { 0%,100%{border-color:rgba(34,211,238,0.3)} 50%{border-color:rgba(236,72,153,0.7)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  .reveal { opacity:1;transform:translateY(0);transition:opacity 0.7s ease,transform 0.7s ease; }
+  .reveal.visible { opacity:1;transform:translateY(0); }
+  .reveal-scale { opacity:1;transform:scale(1);transition:opacity 0.6s ease,transform 0.6s ease; }
+  .reveal-scale.visible { opacity:1;transform:scale(1); }
+  .stagger>*{opacity:1;transform:translateY(0);transition:opacity 0.5s ease,transform 0.5s ease;}
+  .stagger.visible>*:nth-child(1){opacity:1;transform:none;transition-delay:0s;}
+  .stagger.visible>*:nth-child(2){opacity:1;transform:none;transition-delay:0.1s;}
+  .stagger.visible>*:nth-child(3){opacity:1;transform:none;transition-delay:0.2s;}
+  .stagger.visible>*:nth-child(4){opacity:1;transform:none;transition-delay:0.3s;}
+  .stagger.visible>*:nth-child(5){opacity:1;transform:none;transition-delay:0.4s;}
+  .stagger.visible>*:nth-child(6){opacity:1;transform:none;transition-delay:0.5s;}
+  .stagger.visible>*:nth-child(7){opacity:1;transform:none;transition-delay:0.6s;}
+  .stagger.visible>*:nth-child(8){opacity:1;transform:none;transition-delay:0.7s;}
+  .stagger.visible>*:nth-child(9){opacity:1;transform:none;transition-delay:0.8s;}
+
+  /* ── HERO ── */
+  .hero {
+    background:linear-gradient(160deg,#071923 0%,#0B2B3D 40%,#0D4A6B 100%);
+    position:relative;overflow:hidden;
+  }
+  .hero-grid-bg {
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(34,211,238,0.04) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(34,211,238,0.04) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  .hero-glow-pink { position:absolute;top:-80px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,rgba(236,72,153,0.15) 0%,transparent 70%);border-radius:50%; }
+  .hero-glow-cyan { position:absolute;bottom:-100px;left:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 70%);border-radius:50%; }
+
+  /* ── LOGO STRIP ── */
+  .logo-strip {
+    position:relative;z-index:2;
+    padding:20px 48px 0;
+    max-width:960px;margin:0 auto;
+  }
+  .logo-strip img {
+    height:48px;
+    object-fit:contain;
+    filter:brightness(1.1);
+    animation:fadeIn 0.8s ease both;
+  }
+
+  .hero-inner { position:relative;z-index:2;max-width:960px;margin:0 auto;padding:36px 48px 72px; }
+  .hero-tag { display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(34,211,238,0.4);color:var(--cyan-light);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:7px 16px;border-radius:2px;margin-bottom:24px;animation:fadeIn 0.8s ease forwards,wavePulse 3s ease infinite;background:rgba(34,211,238,0.08); }
+  .hero-tag-dot { width:6px;height:6px;background:var(--pink);border-radius:50%;animation:pulse 2s infinite; }
+  .hero-badge { display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(236,72,153,0.3);border-radius:20px;padding:6px 16px;margin-bottom:20px;background:rgba(236,72,153,0.1);animation:fadeUp 0.9s ease 0.1s both; }
+  .hero-badge-dot { width:6px;height:6px;background:var(--pink);border-radius:50%;animation:pulse 2s infinite; }
+  .hero-badge span { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--pink-hot); }
+  .hero h1 { font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,62px);font-weight:900;color:var(--white);line-height:1.1;letter-spacing:-1px;margin-bottom:14px;animation:fadeUp 0.9s ease 0.2s both; }
+  .hero h1 em { font-style:italic;color:var(--cyan); }
+  .hero-sub { font-size:17px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.7;margin-bottom:36px;max-width:660px;animation:fadeUp 0.9s ease 0.4s both; }
+  .hero-meta { display:flex;align-items:center;flex-wrap:wrap;gap:20px;border-top:1px solid rgba(34,211,238,0.15);padding-top:24px;animation:fadeUp 0.9s ease 0.6s both; }
+  .hm-item { display:flex;flex-direction:column;gap:3px; }
+  .hm-label { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3); }
+  .hm-value { font-size:13px;font-weight:500;color:rgba(255,255,255,0.8); }
+  .hero-sep { width:1px;height:30px;background:rgba(34,211,238,0.2); }
+
+  /* ── BANNER ── */
+  .p2p-banner { background:linear-gradient(135deg,var(--pink) 0%,#BE185D 100%);padding:16px 48px;text-align:center; }
+  .p2p-banner p { font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;font-style:italic; }
+  .p2p-banner span { font-style:normal;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px; }
+
+  /* ── TICKER ── */
+  .ticker { background:rgba(11,43,61,0.95);border-top:1px solid rgba(34,211,238,0.15);padding:13px 0;overflow:hidden;white-space:nowrap; }
+  .ticker-track { display:inline-block;animation:ticker 40s linear infinite; }
+  .ticker-item { display:inline-flex;align-items:center;gap:12px;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:1px;text-transform:uppercase;padding:0 36px; }
+  .ticker-item::after { content:'◆';font-size:8px;opacity:0.3; }
+  .ticker-item.hot { color:var(--cyan); }
+  .ticker-item.pink { color:var(--pink-hot); }
+
+  /* ── STAT GRID ── */
+  .stat-section { background:linear-gradient(180deg,#071923 0%,#0B2B3D 100%);padding:64px 48px; }
+  .stat-eyebrow { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:40px;max-width:1000px;margin-left:auto;margin-right:auto; }
+  .stat-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1000px;margin:0 auto; }
+  .stat-card { background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.1);padding:36px 28px;text-align:center;transition:background 0.3s,transform 0.3s; }
+  .stat-card:hover { background:rgba(34,211,238,0.1);transform:translateY(-3px); }
+  .stat-card.hl { background:var(--pink);border-color:var(--pink); }
+  .stat-card.hl:hover { background:#DB2777; }
+  .stat-card.hl2 { background:rgba(34,211,238,0.15);border-color:rgba(34,211,238,0.4); }
+  .stat-val { font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--cyan);line-height:1;display:block;margin-bottom:8px; }
+  .stat-card.hl .stat-val { color:white;font-size:50px; }
+  .stat-card.hl2 .stat-val { color:var(--cyan-light); }
+  .stat-lbl { font-size:12px;color:rgba(255,255,255,0.55);line-height:1.4; }
+  .stat-card.hl .stat-lbl { color:rgba(255,255,255,0.9); }
+  .stat-note { font-size:10px;color:rgba(255,255,255,0.25);margin-top:5px;font-family:'DM Mono',monospace; }
+
+  /* ── ARTICLE ── */
+  .article { background:#0A1F2E;padding:80px 48px; }
+  .section { max-width:920px;margin:0 auto 80px; }
+  .section-tag { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;gap:10px; }
+  .section-tag::before { content:'';display:block;width:24px;height:2px;background:var(--cyan); }
+  h2 { font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:700;color:var(--white);line-height:1.2;margin-bottom:24px;letter-spacing:-0.5px; }
+  h3 { font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--cyan-light);margin-bottom:16px;margin-top:40px; }
+  p { font-size:17px;color:rgba(255,255,255,0.65);line-height:1.85;margin-bottom:20px;font-weight:300; }
+  p strong { color:var(--white);font-weight:600; }
+  p em { color:var(--cyan);font-style:normal;font-weight:600; }
+
+  .pull-quote { border-left:4px solid var(--pink);padding:24px 32px;margin:40px 0;background:rgba(236,72,153,0.08);border-radius:0 4px 4px 0; }
+  .pull-quote p { font-family:'Playfair Display',serif;font-size:22px;color:var(--white);font-weight:700;line-height:1.5;margin:0;font-style:italic; }
+
+  .conviction-box { background:linear-gradient(135deg,rgba(34,211,238,0.08),rgba(236,72,153,0.08));border:1px solid rgba(34,211,238,0.2);border-radius:8px;padding:40px 44px;margin:40px 0;position:relative;overflow:hidden; }
+  .conviction-box::before { content:'"';position:absolute;top:-20px;left:28px;font-family:'Playfair Display',serif;font-size:180px;color:rgba(34,211,238,0.07);line-height:1; }
+  .conviction-box p { font-family:'Playfair Display',serif;font-size:21px;color:rgba(255,255,255,0.92);font-weight:700;line-height:1.6;margin:0;position:relative;z-index:1;font-style:italic; }
+
+  .bullet-list { list-style:none;margin:24px 0; }
+  .bullet-list li { display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(34,211,238,0.1);font-size:16px;color:rgba(255,255,255,0.6);line-height:1.7;font-weight:300; }
+  .bullet-list li:last-child { border-bottom:none; }
+  .bullet-list li::before { content:'→';color:var(--cyan);font-weight:600;flex-shrink:0;margin-top:2px; }
+  .bullet-list li strong { color:var(--white);font-weight:600; }
+
+  .divider { max-width:920px;margin:0 auto 72px;height:1px;background:linear-gradient(to right,transparent,rgba(34,211,238,0.2),transparent); }
+
+  /* ── PROBLEM CARDS ── */
+  .problem-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0; }
+  .problem-col { border-radius:8px;padding:28px;border:1px solid rgba(34,211,238,0.15); }
+  .problem-col.pre { background:rgba(34,211,238,0.06); }
+  .problem-col.post { background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.2); }
+  .problem-col-title { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px; }
+  .problem-col.pre .problem-col-title { color:var(--cyan); }
+  .problem-col.post .problem-col-title { color:var(--pink-hot); }
+  .problem-item { display:flex;gap:12px;align-items:flex-start;margin-bottom:14px; }
+  .pi-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:8px; }
+  .pre .pi-dot { background:var(--cyan); }
+  .post .pi-dot { background:var(--pink); }
+  .pi-text { font-size:14px;color:rgba(255,255,255,0.65);line-height:1.5;font-weight:300; }
+  .pi-text strong { color:white;font-weight:500; }
+
+  /* ── PROCESS STEPS ── */
+  .process-flow { display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:36px 0;position:relative; }
+  .process-flow::before { content:'';position:absolute;top:32px;left:10%;right:10%;height:2px;background:linear-gradient(to right,var(--cyan),var(--pink));z-index:0; }
+  .pf-step { text-align:center;position:relative;z-index:1; }
+  .pf-num { width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin:0 auto 16px;border:2px solid var(--cyan);background:var(--teal-dark);color:var(--cyan);transition:background 0.3s,color 0.3s; }
+  .pf-step:hover .pf-num { background:var(--cyan);color:var(--teal-dark); }
+  .pf-step:nth-child(3) .pf-num { border-color:var(--pink);color:var(--pink); }
+  .pf-step:nth-child(3):hover .pf-num { background:var(--pink);color:white; }
+  .pf-step:nth-child(4) .pf-num,.pf-step:nth-child(5) .pf-num { border-color:var(--pink-hot);color:var(--pink-hot); }
+  .pf-title { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--cyan-light);margin-bottom:8px; }
+  .pf-step:nth-child(3) .pf-title,.pf-step:nth-child(4) .pf-title,.pf-step:nth-child(5) .pf-title { color:var(--pink-hot); }
+  .pf-desc { font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;padding:0 8px;font-weight:300; }
+
+  /* ── ADVANTAGE CARDS ── */
+  .adv-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0; }
+  .adv-card { border-radius:8px;padding:28px 24px;border:1px solid rgba(34,211,238,0.12);background:rgba(34,211,238,0.04);transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s; }
+  .adv-card:hover { border-color:var(--cyan);transform:translateY(-4px);box-shadow:0 12px 40px rgba(34,211,238,0.1); }
+  .adv-card.pink-card { background:rgba(236,72,153,0.05);border-color:rgba(236,72,153,0.15); }
+  .adv-card.pink-card:hover { border-color:var(--pink);box-shadow:0 12px 40px rgba(236,72,153,0.1); }
+  .adv-num { font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:1px;margin-bottom:10px; }
+  .adv-card.pink-card .adv-num { color:var(--pink-hot); }
+  .adv-card h4 { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:10px; }
+  .adv-card p { font-size:14px;line-height:1.65;margin:0;color:rgba(255,255,255,0.6);font-weight:300; }
+  .adv-tag { display:inline-block;margin-top:14px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);background:rgba(34,211,238,0.1);padding:4px 12px;border-radius:2px; }
+  .adv-card.pink-card .adv-tag { color:var(--pink-hot);background:rgba(236,72,153,0.1); }
+
+  /* ── COMPARISON ── */
+  .vs-box { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0; }
+  .vs-card { border-radius:8px;padding:28px 28px; }
+  .vs-card.old { background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1); }
+  .vs-card.new { background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3); }
+  .vs-label { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;color:rgba(255,255,255,0.4); }
+  .vs-card.new .vs-label { color:var(--pink-hot); }
+  .vs-big { font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:rgba(255,255,255,0.4);margin-bottom:8px; }
+  .vs-card.new .vs-big { color:var(--pink); }
+  .vs-sub { font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px; }
+  .vs-card.new .vs-sub { color:rgba(255,255,255,0.7); }
+  .vs-items { list-style:none;display:flex;flex-direction:column;gap:8px; }
+  .vs-items li { font-size:13px;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:8px;font-weight:300; }
+  .vs-card.new .vs-items li { color:rgba(255,255,255,0.75); }
+  .vs-items li::before { content:'✗';color:rgba(255,100,100,0.6);font-size:12px; }
+  .vs-card.new .vs-items li::before { content:'✓';color:#4ADE80; }
+
+  /* ── MARKET ── */
+  .market-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0; }
+  .market-card { background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:8px;padding:24px;text-align:center;transition:background 0.3s; }
+  .market-card:hover { background:rgba(34,211,238,0.1); }
+  .market-val { font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:var(--cyan);line-height:1;margin-bottom:6px; }
+  .market-lbl { font-size:13px;color:rgba(255,255,255,0.55);line-height:1.4; }
+  .tam-sam { display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin:32px 0;border-radius:4px;overflow:hidden; }
+  .tsm-item { padding:32px 24px;text-align:center; }
+  .tsm-item.t { background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.15); }
+  .tsm-item.s { background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.15); }
+  .tsm-item.m { background:rgba(236,72,153,0.18);border:2px solid rgba(236,72,153,0.4); }
+  .tsm-label { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:rgba(255,255,255,0.4); }
+  .tsm-item.m .tsm-label { color:var(--pink-hot); }
+  .tsm-val { font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--white);margin-bottom:4px; }
+  .tsm-desc { font-size:12px;color:rgba(255,255,255,0.45); }
+  .tsm-item.m .tsm-desc { color:rgba(255,255,255,0.7); }
+
+  /* ── TRACTION TIMELINE ── */
+  .traction-timeline { display:flex;margin:36px 0;border-radius:4px;overflow:hidden; }
+  .tt-item { flex:1;padding:28px 24px;border-right:2px solid rgba(34,211,238,0.1);position:relative; }
+  .tt-item:last-child { border-right:none; }
+  .tt-year { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;color:rgba(255,255,255,0.35); }
+  .tt-rev { font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--white);line-height:1;margin-bottom:6px; }
+  .tt-note { font-size:12px;color:rgba(255,255,255,0.45);line-height:1.4; }
+  .tt-badge { display:inline-block;margin-top:8px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--cyan-light);background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.2); }
+  .tt-1 { background:rgba(11,43,61,0.8); }
+  .tt-2 { background:rgba(13,74,107,0.6); }
+  .tt-3 { background:rgba(14,116,144,0.4); }
+  .tt-4 { background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.2); }
+
+  /* ── TEAM ── */
+  .team-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:32px 0; }
+  .team-card { border-radius:8px;overflow:hidden;border:1px solid rgba(34,211,238,0.12);transition:border-color 0.3s,transform 0.3s; }
+  .team-card:hover { border-color:var(--pink);transform:translateY(-4px); }
+  .team-avatar { height:180px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:52px;font-weight:900;position:relative; }
+  .team-avatar.a1 { background:linear-gradient(135deg,#0D4A6B,#0E7490);color:var(--cyan-light); }
+  .team-avatar.a2 { background:linear-gradient(135deg,#1E1B4B,#312E81);color:#A5B4FC; }
+  .team-avatar.a3 { background:linear-gradient(135deg,#1C1917,#292524);color:#D6D3D1; }
+  .team-body { padding:20px; }
+  .team-name { font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:2px; }
+  .team-role { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--pink-hot);margin-bottom:10px; }
+  .team-desc { font-size:13px;color:rgba(255,255,255,0.55);line-height:1.55;font-weight:300; }
+
+  /* ── SDG CARDS ── */
+  .sdg-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:32px 0; }
+  .sdg-card { border-radius:8px;padding:24px;text-align:center;border:1px solid; }
+  .sdg-card.s1 { background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.2); }
+  .sdg-card.s2 { background:rgba(234,179,8,0.08);border-color:rgba(234,179,8,0.2); }
+  .sdg-card.s12 { background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.2); }
+  .sdg-card.s14 { background:rgba(34,211,238,0.08);border-color:rgba(34,211,238,0.2); }
+  .sdg-num { font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;margin-bottom:6px; }
+  .sdg-card.s1 .sdg-num { color:#F87171; }
+  .sdg-card.s2 .sdg-num { color:#FCD34D; }
+  .sdg-card.s12 .sdg-num { color:#FB923C; }
+  .sdg-card.s14 .sdg-num { color:var(--cyan); }
+  .sdg-unit { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px; }
+  .sdg-desc { font-size:13px;color:rgba(255,255,255,0.55);line-height:1.4;font-weight:300; }
+
+  /* ── COMPARE TABLE ── */
+  .compare-wrap { overflow-x:auto;margin:32px 0; }
+  .compare-table { width:100%;border-collapse:collapse;font-size:14px; }
+  .compare-table th { padding:14px 18px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:500;background:rgba(11,43,61,0.9);color:rgba(255,255,255,0.5);border-bottom:1px solid rgba(34,211,238,0.15); }
+  .compare-table th.aq { background:var(--pink);color:white; }
+  .compare-table td { padding:12px 18px;border-bottom:1px solid rgba(34,211,238,0.07);color:rgba(255,255,255,0.55);vertical-align:middle;font-weight:300; }
+  .compare-table td:first-child { font-weight:500;color:rgba(255,255,255,0.8); }
+  .compare-table td.aq { background:rgba(236,72,153,0.08);color:var(--white);font-weight:500;border-bottom:1px solid rgba(236,72,153,0.15); }
+  .compare-table tr:hover td { background:rgba(34,211,238,0.04); }
+  .compare-table tr:hover td.aq { background:rgba(236,72,153,0.14); }
+  .chk { color:#4ADE80;font-weight:600; }
+  .crs { color:#F87171; }
+  .wrn { color:#FCD34D; }
+
+  /* ── SIGNAL GRID ── */
+  .signal-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0; }
+  .signal-item { display:flex;gap:14px;align-items:flex-start;padding:20px;border:1px solid rgba(34,211,238,0.12);border-radius:4px;transition:border-color 0.3s,box-shadow 0.3s; }
+  .signal-item:hover { border-color:var(--cyan);box-shadow:0 4px 16px rgba(34,211,238,0.08); }
+  .sig-dot { width:8px;height:8px;background:var(--cyan);border-radius:50%;flex-shrink:0;margin-top:6px; }
+  .sig-text { font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6;font-weight:300; }
+  .sig-text strong { color:var(--white);font-weight:600; }
+
+  /* ── RISK GRID ── */
+  .risk-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0; }
+  .risk-card { border:1px solid rgba(34,211,238,0.12);border-radius:4px;padding:24px;transition:border-color 0.3s; }
+  .risk-card:hover { border-color:rgba(34,211,238,0.3); }
+  .rc-top { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
+  .rc-icon { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
+  .rc-title { font-weight:600;font-size:14px;color:var(--white); }
+  .risk-card p { font-size:14px;margin:0;line-height:1.6;color:rgba(255,255,255,0.55); }
+  .rc-verdict { margin-top:12px;padding-top:12px;border-top:1px dashed rgba(34,211,238,0.15);font-size:13px;color:#4ADE80;font-weight:500; }
+
+  /* ── VISION BOX ── */
+  .vision-box { background:linear-gradient(135deg,rgba(34,211,238,0.07) 0%,rgba(236,72,153,0.07) 100%);border:1px solid rgba(34,211,238,0.2);border-radius:8px;padding:52px 48px;margin:40px 0;position:relative;overflow:hidden; }
+  .vision-box::after { content:'';position:absolute;bottom:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(236,72,153,0.15) 0%,transparent 70%);border-radius:50%; }
+  .vision-box h3 { color:var(--white);font-size:26px;margin-top:0;margin-bottom:24px; }
+  .vs-list { display:flex;flex-direction:column;gap:20px; }
+  .vs-item { display:flex;gap:16px;align-items:flex-start; }
+  .vs-num { width:32px;height:32px;border:1px solid rgba(34,211,238,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);flex-shrink:0;margin-top:2px; }
+  .vs-text { font-size:15px;color:rgba(255,255,255,0.65);line-height:1.75;font-weight:300; }
+  .vs-text strong { color:var(--cyan-light);font-weight:600; }
+
+  /* ── ROADMAP ── */
+  .roadmap-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:32px 0; }
+  .rm-card { border-radius:6px;padding:20px;border:1px solid rgba(34,211,238,0.1);text-align:center;position:relative;overflow:hidden; }
+  .rm-card::before { content:'';position:absolute;bottom:0;left:0;right:0;height:3px; }
+  .rm-card.r1::before,.rm-card.r2::before { background:rgba(34,211,238,0.4); }
+  .rm-card.r3::before { background:linear-gradient(to right,var(--cyan),var(--pink)); }
+  .rm-card.r4::before { background:var(--pink); }
+  .rm-year { font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px; }
+  .rm-rev { font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--white);margin-bottom:4px; }
+  .rm-card.r4 .rm-rev { color:var(--pink-hot); }
+  .rm-note { font-size:12px;color:rgba(255,255,255,0.4);line-height:1.4; }
+
+  /* ── FUNDING ── */
+  .funding-strip { background:linear-gradient(135deg,rgba(236,72,153,0.12),rgba(34,211,238,0.06));border:1px solid rgba(236,72,153,0.25);border-radius:8px;padding:40px 44px;margin:40px 0;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center; }
+  .fund-item { text-align:center; }
+  .fund-label { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px; }
+  .fund-val { font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--pink);line-height:1; }
+  .fund-sub { font-size:13px;color:rgba(255,255,255,0.45);margin-top:4px; }
+
+  /* ── CTA ── */
+  .cta { background:linear-gradient(160deg,#071923 0%,#0B2B3D 100%);padding:80px 48px;text-align:center;border-top:1px solid rgba(34,211,238,0.1); }
+  .cta-inner { max-width:640px;margin:0 auto; }
+  .cta-tag { font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px; }
+  .cta h2 { color:white;font-size:34px;margin-bottom:14px; }
+  .cta p { color:rgba(255,255,255,0.5);font-size:16px; }
+  .cta-links { display:flex;align-items:center;justify-content:center;gap:16px;margin-top:32px;flex-wrap:wrap; }
+  .cta-btn { display:inline-block;background:var(--pink);color:white;padding:14px 32px;font-size:14px;font-weight:600;text-decoration:none;border-radius:2px;transition:background 0.2s,transform 0.2s; }
+  .cta-btn:hover { background:#BE185D;transform:translateY(-2px); }
+  .cta-sig { margin-top:48px;padding-top:32px;border-top:1px solid rgba(34,211,238,0.1);display:flex;align-items:center;justify-content:center;gap:20px; }
+  .cta-sig-name { font-family:'Playfair Display',serif;font-size:20px;font-style:italic;color:rgba(255,255,255,0.6); }
+  .cta-sig-dot { width:4px;height:4px;background:var(--pink);border-radius:50%; }
+  .cta-sig-url { font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);letter-spacing:1px; }
+
+  .disc { background:#050E16;padding:20px 48px; }
+  .disc p { font-size:12px;color:rgba(255,255,255,0.2);line-height:1.6;margin:0;font-style:italic;max-width:920px;margin:0 auto; }
+
+  @media (max-width:768px) {
+    .stat-grid,.adv-grid,.team-grid,.sdg-grid,.problem-grid,.market-grid,.tam-sam,.risk-grid,.signal-grid,.roadmap-grid { grid-template-columns:1fr; }
+    .process-flow { grid-template-columns:1fr 1fr; }
+    .process-flow::before { display:none; }
+    .vs-box,.funding-strip { grid-template-columns:1fr; }
+    .traction-timeline { flex-direction:column; }
+    .article,.stat-section,.cta { padding-left:24px;padding-right:24px; }
+    .hero-inner,.logo-strip { padding-left:24px;padding-right:24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ HERO ════ -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow-pink"></div>
+  <div class="hero-glow-cyan"></div>
+
+  <!-- LOGO -->
+  <div class="logo-strip">
+    <img src="data:image/png;base64,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" alt="Aquapulse" />
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-tag-dot"></span>Vhelp Capital &nbsp;·&nbsp; Portfolio Spotlight</div>
+    <div class="hero-badge"><span class="hero-badge-dot"></span><span>Bootstrapped · Founded 2022 · Series A Raising</span></div>
+    <h1>Why We Backed<br><em>Aquapulse</em></h1>
+    <p class="hero-sub">Pond-to-Plate Export Intelligence — Transforming India's $9.2B Shrimp Market From the Ground Up, Starting in Bhubaneswar.</p>
+    <div class="hero-meta">
+      <div class="hm-item"><span class="hm-label">Founded</span><span class="hm-value">2022 · Bhubaneswar</span></div>
+      <div class="hero-sep"></div>
+      <div class="hm-item"><span class="hm-label">Sector</span><span class="hm-value">AgriTech · AquaTech · Export</span></div>
+      <div class="hero-sep"></div>
+      <div class="hm-item"><span class="hm-label">Revenue FY25</span><span class="hm-value" style="color:var(--cyan);">₹64 Cr · Bootstrapped</span></div>
+      <div class="hero-sep"></div>
+      <div class="hm-item"><span class="hm-label">Founded</span><span class="hm-value" style="color:#4ADE80;">2022 · Running</span></div>
+      <div class="hero-sep"></div>
+      <div class="hm-item"><span class="hm-label">YTD FY26</span><span class="hm-value" style="color:var(--pink-hot);">₹90 Cr · Growing</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ BANNER ════ -->
+<div class="p2p-banner">
+  <p><span>🦐 POND-TO-PLATE · </span>India's Leading Pond to Plate End-to-End Aquaculture Intelligence Platform — Pre-Harvest Quality + Processing Speed + Global Market Access</p>
+</div>
+
+<!-- ════ TICKER ════ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item hot">₹64 Cr Revenue FY25</span>
+    <span class="ticker-item pink">Founded 2022 · Bhubaneswar</span>
+    <span class="ticker-item hot">₹90 Cr YTD FY26</span>
+    <span class="ticker-item">6,377 Farmers Onboarded</span>
+    <span class="ticker-item">1.87M+ Kg Shrimp Sold FY25</span>
+    <span class="ticker-item pink">4X Faster Processing</span>
+    <span class="ticker-item">Bootstrapped · 25% Gross Margins</span>
+    <span class="ticker-item hot">Exporting to China &amp; Vietnam</span>
+    <span class="ticker-item">$418B Global Aquaculture TAM</span>
+    <span class="ticker-item pink">Raising $5M Series A</span>
+    <span class="ticker-item">Target ₹720 Cr by 2028</span>
+    <span class="ticker-item">ISO 27001 + ISO 9001 Certified</span>
+    <span class="ticker-item hot">₹64 Cr Revenue FY25</span>
+    <span class="ticker-item pink">Founded 2022 · Bhubaneswar</span>
+    <span class="ticker-item hot">₹90 Cr YTD FY26</span>
+    <span class="ticker-item">6,377 Farmers Onboarded</span>
+    <span class="ticker-item">1.87M+ Kg Shrimp Sold FY25</span>
+    <span class="ticker-item pink">4X Faster Processing</span>
+    <span class="ticker-item">Bootstrapped · 25% Gross Margins</span>
+    <span class="ticker-item hot">Exporting to China &amp; Vietnam</span>
+    <span class="ticker-item">$418B Global Aquaculture TAM</span>
+    <span class="ticker-item pink">Raising $5M Series A</span>
+    <span class="ticker-item">Target ₹720 Cr by 2028</span>
+    <span class="ticker-item">ISO 27001 + ISO 9001 Certified</span>
+  </div>
+</div>
+
+<!-- ════ STATS ════ -->
+<section class="stat-section">
+  <div class="stat-eyebrow reveal">Key Performance Indicators — Aquapulse FY 2025–26</div>
+  <div class="stat-grid stagger">
+    <div class="stat-card hl"><span class="stat-val">₹64 Cr</span><div class="stat-lbl">Revenue FY 2024–25<br><span style="font-size:11px;opacity:0.85;">Bootstrapped · No External Capital</span></div></div>
+    <div class="stat-card hl2"><span class="stat-val">₹10 Cr</span><div class="stat-lbl">Monthly Revenue Run Rate<br>Running Rate · FY26</div></div>
+    <div class="stat-card hl2"><span class="stat-val">₹90 Cr</span><div class="stat-lbl">YTD Revenue FY 2025–26<br>Ahead of Trajectory</div></div>
+    <div class="stat-card"><span class="stat-val">25%</span><div class="stat-lbl">Gross Margins<br>Healthy &amp; Improving</div></div>
+    <div class="stat-card"><span class="stat-val">6,377</span><div class="stat-lbl">Farmers Onboarded<br>&amp; Actively Transacting</div></div>
+    <div class="stat-card"><span class="stat-val">4X</span><div class="stat-lbl">Faster Processing<br>vs. Standard EMS</div><div class="stat-note">30-day cycle → 7 days</div></div>
+    <div class="stat-card"><span class="stat-val">&lt;5%</span><div class="stat-lbl">Spoilage Loss<br>vs. 20–30% Industry Standard</div></div>
+    <div class="stat-card"><span class="stat-val">$418B</span><div class="stat-lbl">Global Aquaculture Market<br>5.1% CAGR 2025–2030</div></div>
+    <div class="stat-card"><span class="stat-val">$5M</span><div class="stat-lbl">Series A · Currently Raising<br>Exporting to China &amp; Vietnam</div></div>
+  </div>
+</section>
+
+<!-- ════ ARTICLE ════ -->
+<section class="article">
+
+  <!-- 01 PROBLEM -->
+  <div class="section reveal">
+    <div class="section-tag">01 — The Problem</div>
+    <h2>India's Aquaculture Value Chain Is Broken at Every Link.</h2>
+    <p>India is the world's <strong>2nd largest aquaculture nation</strong> — a $9.2 billion shrimp market with 30 million people in fish production. And yet, billions of dollars in value are destroyed every year through a fragmented, intelligence-free supply chain.</p>
+    <p>The losses aren't marginal. They're structural — embedded at every stage of the value chain, from the pond to the plate. When we examined the numbers, we were struck by how solvable these problems actually are with the right technology and operational model.</p>
+    <div class="problem-grid stagger">
+      <div class="problem-col pre">
+        <div class="problem-col-title">Pre-Harvest Failures</div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>70%+ farmers lack credit</strong> — trapped in high-cost informal lending cycles that limit investment in quality inputs</div></div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>80%+ farms without scientific guidance</strong> — productivity losses worth $1B+ annually from suboptimal feed, stocking, and harvest practices</div></div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>Fragmented supply chain</strong> — low bargaining power and suppressed incomes for millions of small aquafarmers across coastal India</div></div>
+      </div>
+      <div class="problem-col post">
+        <div class="problem-col-title">Post-Harvest Failures</div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>20–30% shrimp spoilage = $2B+ loss annually</strong> — poor cold chain management and pre-processing delays</div></div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>Only ~5% pre-cooled at harvest</strong> — 10.5% marine fish wasted = $1.5B+ in avoidable farmgate losses</div></div>
+        <div class="problem-item"><div class="pi-dot"></div><div class="pi-text"><strong>Poor buyer access &amp; &lt;50% compliance</strong> — depressed price realization, ~$1B in lost value for India's aquaculture exporters annually</div></div>
+      </div>
+    </div>
+    <div class="pull-quote">
+      <p>"India is the world's largest shrimp exporter — yet we waste 20–30% of every harvest. This isn't a supply problem. It's an intelligence problem."</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 02 CONVICTION -->
+  <div class="section reveal">
+    <div class="section-tag">02 — The Conviction Moment</div>
+    <h2>The Team Built the Business Before the Blueprint.</h2>
+    <p>Founder <strong>Ananya Mohapatra</strong> and Co-Founder &amp; CEO <strong>Abhishek Dwivedy</strong> didn't come from a VC-backed, accelerator-polished background. They came from the field — understanding firsthand what happens when a shrimp batch sits in a non-refrigerated warehouse for five days before dispatch.</p>
+    <p>Abhishek brings <strong>10+ years of aquaculture and finance experience</strong>. Chief Growth Officer <strong>Abhilash Dwivedy</strong> brings 10+ years in agri-allied sectors from Syngenta and FMC. The leadership combination of deep sector knowledge, operations, and growth is rare — and it shows in how the company has been built.</p>
+    <div class="conviction-box">
+      <p>By FY26 YTD, Aquapulse had already crossed ₹90 Cr in revenue, onboarded 6,377 farmers, and begun exporting to China and Vietnam — all bootstrapped, without raising institutional capital. That changes with this round.</p>
+    </div>
+    <p>That combination of <strong>domain depth, operational proof, and international market validation</strong> — all bootstrapped — is precisely what made this a compelling portfolio decision for Vhelp Capital.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 03 TECH / PLATFORM -->
+  <div class="section">
+    <div class="section-tag reveal">03 — The Platform</div>
+    <h2 class="reveal">End-to-End Transformation. Pond to Payment in 5 Steps.</h2>
+    <p class="reveal">Aquapulse is India's leading pond to plate platform that controls and optimizes every stage of the aquaculture value chain — from pre-harvest farm management to post-harvest export and payment. The key insight: <em>quality must be built in from Day 1, not inspected at the end.</em></p>
+
+    <div class="process-flow stagger">
+      <div class="pf-step">
+        <div class="pf-num">1</div>
+        <div class="pf-title">Onboarding</div>
+        <div class="pf-desc">Smart farmer onboarding with MPEDA/CAA certified pond compliance audits</div>
+      </div>
+      <div class="pf-step">
+        <div class="pf-num">2</div>
+        <div class="pf-title">Advisory</div>
+        <div class="pf-desc">AI-guided feeding schedules, remote sensing for pond health, crop calendar alerts</div>
+      </div>
+      <div class="pf-step">
+        <div class="pf-num">3</div>
+        <div class="pf-title">Harvest</div>
+        <div class="pf-desc">Harvest aligned with market demand for better prices and reduced lag time</div>
+      </div>
+      <div class="pf-step">
+        <div class="pf-num">4</div>
+        <div class="pf-title">Chill &amp; Dispatch</div>
+        <div class="pf-desc">Ice-slurry tanks at farm, instant cooling to &lt;4°C, real-time data sync</div>
+      </div>
+      <div class="pf-step">
+        <div class="pf-num">5</div>
+        <div class="pf-title">Payment</div>
+        <div class="pf-desc">Match with global partners, transparent pricing, faster payouts + microcredit access</div>
+      </div>
+    </div>
+
+    <div class="adv-grid stagger">
+      <div class="adv-card">
+        <div class="adv-num">PILLAR 01 · Pre-Harvest</div>
+        <h4>Quality Built In</h4>
+        <p>Certified pond audits, standardized practices for seed, feed, and pond health. Pre-defined quality benchmarks ensure export readiness from Day 1 — not retrofitted at the end.</p>
+        <span class="adv-tag">Define → Train → Assure</span>
+      </div>
+      <div class="adv-card pink-card">
+        <div class="adv-num">PILLAR 02 · Processing</div>
+        <h4>Speed: 30 Days → 7</h4>
+        <p>Ice-slurry technology at the farmgate cuts spoilage and boosts shelf life. Eliminates 3–5 days of water-soaking delays. Real-time data sync from pond to processor ensures swift, fresh movement.</p>
+        <span class="adv-tag">4X Faster · 2X Fresher</span>
+      </div>
+      <div class="adv-card">
+        <div class="adv-num">PILLAR 03 · Post-Harvest</div>
+        <h4>Global Market Access</h4>
+        <p>Direct access to global buyers through farm aggregation hubs — with active exports to <strong>China and Vietnam</strong> already underway, and transparent pricing that creates better farmer incomes.</p>
+        <span class="adv-tag">China · Vietnam · Expanding</span>
+      </div>
+    </div>
+
+    <h3 class="reveal">The Aquapulse vs. Standard Processing Difference</h3>
+    <div class="vs-box reveal">
+      <div class="vs-card old">
+        <div class="vs-label">Standard Mode</div>
+        <div class="vs-big">10–14 Days</div>
+        <div class="vs-sub">20–30% weight loss · Bacterial growth</div>
+        <ul class="vs-items">
+          <li>Manual harvesting, no pre-planning</li>
+          <li>Slow chilling in crushed ice</li>
+          <li>Storage in non-refrigerated warehouses</li>
+          <li>3–5 days water soaking to inflate weight</li>
+          <li>No buyer linked in advance</li>
+        </ul>
+      </div>
+      <div class="vs-card new">
+        <div class="vs-label">Aquapulse Mode</div>
+        <div class="vs-big">3–4 Days</div>
+        <div class="vs-sub">&lt;5% loss · 2× fresher · AI traceability</div>
+        <ul class="vs-items">
+          <li>Lagoon harvest coordination, buyer pre-linked</li>
+          <li>Ice-slurry chilling at farmgate (&lt;4°C instantly)</li>
+          <li>Direct dispatch to processor within 24 hours</li>
+          <li>Zero water soaking — no weight manipulation</li>
+          <li>Real-time data sync, full traceability</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 04 TRACTION -->
+  <div class="section reveal">
+    <div class="section-tag">04 — Traction &amp; Financials</div>
+    <h2>The Numbers Came Before the Narrative.</h2>
+    <p>Aquapulse was generating real revenue, onboarding real farmers, and selling real shrimp before they raised institutional capital. That operational proof matters more than any projection — and the trajectory is accelerating.</p>
+
+    <div class="traction-timeline">
+      <div class="tt-item tt-1">
+        <div class="tt-year">FY 2022–23</div>
+        <div class="tt-rev">₹32 Cr</div>
+        <div class="tt-note">First full year. Model proving out. Bootstrapped.</div>
+      </div>
+      <div class="tt-item tt-2">
+        <div class="tt-year">FY 2023–24</div>
+        <div class="tt-rev">₹38 Cr</div>
+        <div class="tt-note">Steady growth. System scaling.</div>
+        <div class="tt-badge">↑ 19%</div>
+      </div>
+      <div class="tt-item tt-3">
+        <div class="tt-year">FY 2024–25</div>
+        <div class="tt-rev">₹64 Cr</div>
+        <div class="tt-note">68% jump. 6,377 farmers. 1.87M kg sold.</div>
+        <div class="tt-badge">↑ 68%</div>
+      </div>
+      <div class="tt-item tt-4">
+        <div class="tt-year">FY 25–26 · YTD</div>
+        <div class="tt-rev">₹90 Cr</div>
+        <div class="tt-note">₹10 Cr Monthly Revenue Run Rate. Exports to China &amp; Vietnam live.</div>
+        <div class="tt-badge" style="border-color:rgba(236,72,153,0.3);color:var(--pink-hot);background:rgba(236,72,153,0.1);">↑ Running</div>
+      </div>
+    </div>
+
+    <p>The <strong>25% gross margin</strong> at scale in an agri-commodity business is notable — it signals Aquapulse is not just moving volume, but moving <em>value</em>. The ice-slurry technology and farmer aggregation model create structural margin advantages that compound as scale increases.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 05 MARKET -->
+  <div class="section">
+    <div class="section-tag reveal">05 — Market Opportunity</div>
+    <h2 class="reveal">A $418B Global Market. India Playing Well Below Its Potential.</h2>
+    <p class="reveal">India is the world's 2nd largest aquaculture nation and the largest shrimp exporter — yet operates at a fraction of its market potential. The gap between India's position and its realised value is exactly where Aquapulse operates.</p>
+
+    <div class="market-grid stagger">
+      <div class="market-card">
+        <div class="market-val">$418B</div>
+        <div class="market-lbl">Global Aquaculture Market 2030<br>5.1% CAGR (2025–2030)</div>
+      </div>
+      <div class="market-card">
+        <div class="market-val">$9.2B</div>
+        <div class="market-lbl">Indian Shrimp Market<br>5.5% CAGR · 2nd Largest Nation</div>
+      </div>
+      <div class="market-card">
+        <div class="market-val">₹60,523 Cr</div>
+        <div class="market-lbl">Seafood Exported FY 2023–24<br>US, China, Japan key markets</div>
+      </div>
+    </div>
+
+    <div class="tam-sam reveal">
+      <div class="tsm-item t">
+        <div class="tsm-label">TAM</div>
+        <div class="tsm-val">$71.87B</div>
+        <div class="tsm-desc">Global Shrimp Market</div>
+      </div>
+      <div class="tsm-item s">
+        <div class="tsm-label">SAM</div>
+        <div class="tsm-val">$9.2B</div>
+        <div class="tsm-desc">Indian Shrimp Market</div>
+      </div>
+      <div class="tsm-item m">
+        <div class="tsm-label">SOM · Target</div>
+        <div class="tsm-val">$370M</div>
+        <div class="tsm-desc">4% of SAM — Aquapulse's 3-year target</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 06 COMPETITION -->
+  <div class="section">
+    <div class="section-tag reveal">06 — Competitive Position</div>
+    <h2 class="reveal">The Only Player Combining Quality, Speed, and Market Access.</h2>
+    <p class="reveal">India's aquaculture space has players focused on inputs, or logistics, or B2B sourcing. None have built an end-to-end platform that owns the full value chain from certified pre-harvest practices through to global market linkage — and active exports.</p>
+
+    <div class="compare-wrap reveal">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Player</th><th>Model Focus</th><th>Funding</th><th class="aq">Aquapulse Differentiator</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Falcon Marine</td><td>Processing &amp; Export</td><td>PVT. Owned</td><td class="aq"><span class="chk">✓</span> Faster processing (ice slurry) + tech traceability</td></tr>
+          <tr><td>Apex Frozen Foods</td><td>Processing &amp; Export</td><td>Listed Co.</td><td class="aq"><span class="chk">✓</span> Direct farmer aggregation, no intermediaries</td></tr>
+          <tr><td>AquaConnect</td><td>Input Sales, Channel Finance</td><td>$24.1M</td><td class="aq"><span class="chk">✓</span> Post-harvest + China/Vietnam export access</td></tr>
+          <tr><td>AquaExchange</td><td>Input marketplace, logistics</td><td>$11M</td><td class="aq"><span class="chk">✓</span> Full end-to-end value chain coverage</td></tr>
+          <tr><td>Captain Fresh</td><td>B2B Seafood Sourcing</td><td>$226M</td><td class="aq"><span class="chk">✓</span> Shrimp-specific, bootstrapped, export-ready</td></tr>
+          <tr style="border-top:2px solid rgba(236,72,153,0.3)">
+            <td style="color:var(--pink-hot);font-weight:700;">Aquapulse</td>
+            <td style="color:rgba(255,255,255,0.8);">Pre-harvest quality + fast export</td>
+            <td style="color:var(--cyan);">Bootstrapped · Raising $5M</td>
+            <td class="aq" style="background:rgba(236,72,153,0.15);"><span class="chk">✓</span> <strong>Speed + Quality + Market Access — combined</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 07 SDGs -->
+  <div class="section">
+    <div class="section-tag reveal">07 — Impact &amp; SDGs</div>
+    <h2 class="reveal">Building a Sustainable Aquaculture Economy — by the Numbers.</h2>
+    <p class="reveal">Aquapulse is aligned with the World Economic Forum's call for $175B in blue finance to achieve SDG 14 (Life Below Water) by 2030. The impact is already measurable.</p>
+
+    <div class="sdg-grid stagger">
+      <div class="sdg-card s1">
+        <div class="sdg-num">$4.27M</div>
+        <div class="sdg-unit">SDG 1 · No Poverty</div>
+        <div class="sdg-desc">Revenue increase delivered to 3,000 aquafarmers through better pricing and market access</div>
+      </div>
+      <div class="sdg-card s2">
+        <div class="sdg-num">8.89 MT</div>
+        <div class="sdg-unit">SDG 2 · Zero Hunger</div>
+        <div class="sdg-desc">Farm produce sold to organised partners — ensuring food security and market linkage</div>
+      </div>
+      <div class="sdg-card s12">
+        <div class="sdg-num">0.8M Kg</div>
+        <div class="sdg-unit">SDG 12 · Responsible Consumption</div>
+        <div class="sdg-desc">Reduction in feed usage through AI-guided advisories and precision farming</div>
+      </div>
+      <div class="sdg-card s14">
+        <div class="sdg-num">14,000 Ha</div>
+        <div class="sdg-unit">SDG 14 · Life Below Water</div>
+        <div class="sdg-desc">Area under sustainable aquaculture practices — certified and audited</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 08 TEAM -->
+  <div class="section">
+    <div class="section-tag reveal">08 — The Team</div>
+    <h2 class="reveal">Built by People Who Know the Pond, the Plant, and the P&amp;L.</h2>
+
+    <div class="team-grid stagger">
+      <div class="team-card">
+        <div class="team-avatar a1">AM</div>
+        <div class="team-body">
+          <div class="team-name">Ananya Mohapatra</div>
+          <div class="team-role">Founder</div>
+          <div class="team-desc">Tech-driven aquaculture innovation. Built Aquapulse from the ground up — using technology to solve structural aquaculture problems at scale. Was part of Tech Mahindra.</div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar a2">AD</div>
+        <div class="team-body">
+          <div class="team-name">Abhishek Dwivedy</div>
+          <div class="team-role">Co-Founder &amp; CEO</div>
+          <div class="team-desc">10+ years in aquaculture and finance. Deep sector expertise in the intersection of seafood operations and capital — the exact combination needed to build a profitable, scalable export platform.</div>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar a3">AD</div>
+        <div class="team-body">
+          <div class="team-name">Abhilash Dwivedy</div>
+          <div class="team-role">Chief Growth Officer</div>
+          <div class="team-desc">10+ years in agri-allied sectors. Ex-Syngenta and FMC. Enterprise-grade distribution and growth expertise powering Aquapulse's farmer onboarding and global buyer network expansion.</div>
+        </div>
+      </div>
+    </div>
+    <p class="reveal" style="text-align:center;margin-top:8px;font-size:14px;color:rgba(255,255,255,0.35);">Previously associated with: Tech Mahindra · Solidaridad · IFFCO · Reliance Foundation · AquaConnect · Syngenta · Bayer · UPL · FMC</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 09 ROADMAP -->
+  <div class="section reveal">
+    <div class="section-tag">09 — Roadmap to ₹720 Cr</div>
+    <h2>The Scale That Makes This Worth Backing.</h2>
+    <p>Aquapulse's 3-year roadmap is grounded in their current operational reality. Every target flows from the systems already in place — not aspirational starting from zero. And with exports to <strong>China and Vietnam</strong> already live, the international expansion thesis is being proven in real-time.</p>
+
+    <div class="roadmap-grid stagger">
+      <div class="rm-card r1"><div class="rm-year">2026</div><div class="rm-rev">₹224 Cr</div><div class="rm-note">10,000 farmers · 8,000 MT · 75 buyers · SEA deepening</div></div>
+      <div class="rm-card r2"><div class="rm-year">2027</div><div class="rm-rev">₹504 Cr</div><div class="rm-note">18,000 farmers · 10,134 MT · 100 buyers</div></div>
+      <div class="rm-card r3"><div class="rm-year">2028</div><div class="rm-rev">₹720 Cr</div><div class="rm-note">30,000 farmers · 24,000 MT · 150 buyers</div></div>
+      <div class="rm-card r4"><div class="rm-year">2030</div><div class="rm-rev">₹6,128 Cr</div><div class="rm-note">EBITDA: 22% · Net profit: ₹1,361 Cr</div></div>
+    </div>
+
+    <p>Scaling plan: <strong>Odisha (2025) → South India (2026) → SEA Pilot (2027) → Global Expansion (2028)</strong>. Partners already in place: Kuehne+Nagel, Canara Bank, MPEDA, Caspian Debt, Seashell Logistics, DRIP/c.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 10 VISION -->
+  <div class="section">
+    <div class="section-tag reveal">10 — The Vision</div>
+    <h2 class="reveal">What India's Aquaculture Economy Looks Like If Aquapulse Wins.</h2>
+    <div class="vision-box reveal-scale">
+      <h3>Five years from now —</h3>
+      <div class="vs-list">
+        <div class="vs-item"><div class="vs-num">01</div><div class="vs-text">A shrimp farmer in coastal Odisha receives a <strong>harvest advisory on his phone</strong> — timing aligned with live demand from a buyer in Shanghai. By the time the shrimp leaves the pond, a Chinese importer has already confirmed the order.</div></div>
+        <div class="vs-item"><div class="vs-num">02</div><div class="vs-text">An exporter in Bhubaneswar opens the <strong>Aquapulse trade intelligence dashboard</strong> — seeing live shrimp pricing trends in Vietnam, tariff movements in the US, and demand forecasts for the next quarter. <strong>No more guessing. No more middlemen.</strong></div></div>
+        <div class="vs-item"><div class="vs-num">03</div><div class="vs-text">30,000 Indian aquafarmers are part of a <strong>single certified, traceable network</strong> — meeting international food safety standards, accessing institutional credit, and earning 40–60% more than they did before Aquapulse.</div></div>
+        <div class="vs-item"><div class="vs-num">04</div><div class="vs-text">India's shrimp export industry has a <strong>Bloomberg-equivalent data layer</strong> — built by Aquapulse, powered by AI, and trusted by MPEDA, FAO, and the world's largest seafood buyers as the definitive source of aquaculture market intelligence.</div></div>
+      </div>
+    </div>
+    <p class="reveal">This is the <em>Pond-to-Plate Intelligence</em> vision — and Aquapulse, founded by <strong>Ananya Mohapatra</strong> and <strong>Abhishek Dwivedy</strong>, is India's leading company building the infrastructure to make it real.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 11 FUNDING -->
+  <div class="section reveal">
+    <div class="section-tag">11 — The Ask</div>
+    <h2>$5 Million to Accelerate What's Already Working.</h2>
+    <p>Aquapulse is raising <strong>$5 Million</strong> — a Series A round to fuel the next phase of geographic expansion, technology build-out, and international market deepening. They've proven the model bootstrapped. This capital accelerates what's already working.</p>
+
+    <div class="funding-strip">
+      <div class="fund-item">
+        <div class="fund-label">Series A Ask</div>
+        <div class="fund-val">$5M</div>
+        <div class="fund-sub">Currently Raising</div>
+      </div>
+      <div class="fund-item">
+        <div class="fund-label">Use of Funds</div>
+        <div class="fund-val" style="color:var(--cyan);font-size:26px;">66% CAPEX</div>
+        <div class="fund-sub">Farm hubs · Tech build · South India expansion<br>15% Payroll · 13% Working Capital · 6% Marketing</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════ CTA ════ -->
+<section class="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-tag">Visit · Connect · Invest</div>
+    <h2>Aquapulse — India's Aquaculture Intelligence Layer</h2>
+    <p>Learn more about Aquapulse, their farmer platform, export capabilities, and the Series A opportunity.</p>
+    <div class="cta-links">
+      <a href="https://www.aquapulse.co.in" target="_blank" class="cta-btn">Visit aquapulse.co.in →</a>
+      <a href="/cdn-cgi/l/email-protection#197a76776d787a6d6c6a5978686c78696c756a7c377a76377077" class="cta-btn" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.3);color:var(--cyan-light);"><span class="__cf_email__" data-cfemail="81e2eeeff5e0e2f5f4f2c1e0f0f4e0f1f4edf2e4afe2eeafe8ef">[email&#160;protected]</span></a>
+    </div>
+    <div class="cta-sig">
+      <span class="cta-sig-name">— Team Vhelp Capital</span>
+      <span class="cta-sig-dot"></span>
+      <span class="cta-sig-url">vhelpcapital.in</span>
+    </div>
+  </div>
+</section>
+
+<div class="disc">
+  <p>All financial and operational statistics are sourced from Aquapulse internal data as reviewed by Vhelp Capital. Market data sourced from Expert Market Research, IMARC, MPEDA (FY 2023-24), and FAO Global Aquaculture reports. This blog post is for informational purposes only and does not constitute an offer to invest or financial advice.</p>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const io = new IntersectionObserver((e) => {
+    e.
